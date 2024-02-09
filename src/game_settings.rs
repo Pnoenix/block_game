@@ -1,8 +1,8 @@
-pub const CHUNK_SIZE: usize = 8;
+pub const CHUNK_SIZE: usize = 32;
 
 // Player variables
-pub const PLAYER_SPEED_XZ: f32 = 0.2;
-pub const PLAYER_SPEED_Y: f32 = 0.2;
+pub const PLAYER_SPEED_XZ: f32 = 5.2;
+pub const PLAYER_SPEED_Y: f32 = 5.2;
 
 // A hidden sensitivity multiplier is used,
 // so that the visible one is a reasonable,

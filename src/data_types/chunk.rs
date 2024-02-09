@@ -122,12 +122,14 @@ impl Chunk {
         let mut index_vec: Vec<u32>      = Vec::new();
         let mut normal_vec: Vec<[f32;3]> = Vec::new();
 
+        let mut vertex_index: u32 = 0;
+
         for chunk_index in 0..self.chunk_length {
             if self.get_block(chunk_index) == Some(Block::Air) { continue } 
 
             let x = (chunk_index % CHUNK_SIZE) as f32;
-            let y = (chunk_index / CHUNK_SIZE % CHUNK_SIZE) as f32;
-            let z = (chunk_index / CHUNK_SIZE / CHUNK_SIZE % CHUNK_SIZE) as f32;
+            let y = (chunk_index / CHUNK_SIZE / CHUNK_SIZE % CHUNK_SIZE) as f32;
+            let z = (chunk_index / CHUNK_SIZE % CHUNK_SIZE) as f32;
 
             for vertex in CUBE_VERTICIES {
                 vertex_vec.push([
@@ -138,16 +140,17 @@ impl Chunk {
             }
 
             for index in CUBE_INDICIES {
-                match (index + (chunk_index * 24) as u32).try_into() {
+                match (index + (vertex_index * 24) as u32).try_into() {
                     Ok(value) => index_vec.push(value),
                     Err(_) => continue
                 }
-                
             }
  
             for normal in CUBE_NORMALS {
                 normal_vec.push(normal)
             }
+
+            vertex_index += 1;
         }
 
         Mesh::new(PrimitiveTopology::TriangleList)
