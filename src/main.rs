@@ -1,10 +1,9 @@
 // "Globals"
-pub mod game_settings;
-pub mod settings;
+pub mod resources;
 pub mod data_types;
 
 use data_types::{chunk::*, block::*};
-use game_settings::*;
+use resources::{game_config::*, controls::*, block_models::*};
 
 // Plugins
 pub mod plugins;
@@ -14,19 +13,27 @@ use plugins::startup_init_plugin::*;
 
 // Bevy
 use bevy::prelude::*;
+use bevy::diagnostic::LogDiagnosticsPlugin;
 
+// Other
+use libnoise::prelude::*;
 
 fn main() {
     App::new()
-        .add_plugins((DefaultPlugins, CameraPlugin, StartupInitPlugin))
+        .add_plugins((DefaultPlugins, CameraPlugin, StartupInitPlugin, LogDiagnosticsPlugin::default()))
         .add_systems(Startup, (spawn_light, setup))
+        .init_resource::<Controls>()
+        .init_resource::<GameConfig>()
+        .init_resource::<BlockModels>()
         .run();
 }
+
 
 fn spawn_light(mut commands: Commands) {
     let light = DirectionalLightBundle {
         directional_light: DirectionalLight {
             illuminance: 2000.0,
+            shadows_enabled: true,
             ..default()
         },
         transform: Transform::from_xyz(0.0, 1000.0, 0.0)
@@ -42,17 +49,21 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    let size = 16;
+    let size = 2;
+
+    let simplex = Source::simplex(1);
+    let mut count: i64 = 0;
+
+    let scale = 50.0;
+    
     for x in 0..size {
         for z in 0..size {
             let mut chunk = Chunk::new(Vec3::new(x as f32, 0.0, z as f32));
             
             for i in 0..chunk.chunk_length {
-
-                if (i < CHUNK_SIZE * CHUNK_SIZE * 8) && (i % 3 == 0) {
+                if simplex.sample([(x*32 + i % 32) as f64 / scale, ((i/1024) % 32) as f64 / scale, (z*32 + (i / 32) % 32) as f64 / scale]) > 0.0 {
                     chunk.set_block(Block::Stone, i);
-                } else {
-                    chunk.set_block(Block::Air, i);
+                    count += 12;
                 }
             }
 
@@ -70,4 +81,6 @@ fn setup(
             );
         }
     }
+
+    println!("Triangle count: {count}");
 }

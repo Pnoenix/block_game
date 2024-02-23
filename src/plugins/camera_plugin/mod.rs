@@ -1,8 +1,7 @@
 use bevy::prelude::*;
 use bevy::input::mouse::MouseMotion;
+use crate::resources::{game_config::GameConfig, controls::Controls};
 
-use crate::settings::*;
-use crate::game_settings::*;
 
 pub struct CameraPlugin;
 
@@ -15,10 +14,13 @@ impl Plugin for CameraPlugin {
 }
 
 fn spawn_camera(mut commands: Commands) {
-    let camera = Camera3dBundle {
-        transform: Transform::from_xyz(0.0, 1.0, 0.0),
-        ..default()
-    };
+    let camera = (
+
+        Camera3dBundle {
+            transform: Transform::from_xyz(0.0, 1.0, 0.0),
+            ..default()
+        },
+    );
 
     commands.spawn(camera);
 }
@@ -26,6 +28,8 @@ fn spawn_camera(mut commands: Commands) {
 fn rotate_camera(
     mut camera_query: Query<&mut Transform, With<Camera>>,
     mut mouse: EventReader<MouseMotion>,
+    settings: Res<Controls>,
+    game_config: Res<GameConfig>,
 ) {
     let mut mouse_delta = Vec2::ZERO;
     for mouse_event in mouse.read() {
@@ -37,7 +41,7 @@ fn rotate_camera(
         Err(_) => return
     };
 
-    mouse_delta *= HIDDEN_SENSITIVITY * SENSITIVITY * -1.0;
+    mouse_delta *= game_config.hidden_sensitivity * settings.sensitivity * -1.0;
 
     camera.rotate_y(mouse_delta.x);
     camera.rotate_local_x(mouse_delta.y);
@@ -45,7 +49,9 @@ fn rotate_camera(
 
 fn translate_camera(
     mut camera_query: Query<&mut Transform, With<Camera>>,
-    keyboard: Res<Input<KeyCode>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
+    settings: Res<Controls>,
+    game_config: Res<GameConfig>,
 ) {
     let mut player = match camera_query.get_single_mut() {
         Ok(transform) => transform,
@@ -56,24 +62,24 @@ fn translate_camera(
     let mut translate_y: Vec3 = Vec3::new(0.0, 0.0, 0.0);
 
     // xz plane
-    if keyboard.pressed(FORWARD) {
+    if keyboard.pressed(settings.forward) {
         translate_xz.z -= 1.0;
     }
-    if keyboard.pressed(BACKWARD) {
+    if keyboard.pressed(settings.backward) {
         translate_xz.z += 1.0;
     }
-    if keyboard.pressed(RIGHT) {
+    if keyboard.pressed(settings.right) {
         translate_xz.x += 1.0;
     }
-    if keyboard.pressed(LEFT) {
+    if keyboard.pressed(settings.left) {
         translate_xz.x -= 1.0;
     }
 
     //y axis
-    if keyboard.pressed(UP) {
+    if keyboard.pressed(settings.up) {
         translate_y.y += 1.0;
     }
-    if keyboard.pressed(DOWN) {
+    if keyboard.pressed(settings.down) {
         translate_y.y -= 1.0;
     }
 
@@ -85,10 +91,10 @@ fn translate_camera(
     ).mul_vec3(translate_xz);
 
     match translate_xz.try_normalize() {
-        Some(translate_xz) => player.translation += translate_xz * PLAYER_SPEED_XZ,
+        Some(translate_xz) => player.translation += translate_xz * game_config.player_speed_xz,
         None => { }
     }
 
-    player.translation += translate_y * PLAYER_SPEED_Y;
+    player.translation += translate_y * game_config.player_speed_y;
 }
 

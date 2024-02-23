@@ -1,4 +1,3 @@
-use crate::game_settings::*;
 use crate::data_types::block::Block;
 
 // Bevy
@@ -6,6 +5,7 @@ use bevy::math::Vec3;
 use bevy::render::mesh::Mesh;
 use bevy::render::mesh::Indices;
 use bevy::render::render_resource::PrimitiveTopology;
+use bevy::render::render_asset::RenderAssetUsages;
 
 
 const CUBE_VERTICIES: [[f32;3];24] = [
@@ -83,7 +83,7 @@ const CUBE_NORMALS: [[f32;3];24] = [
 
 
 pub struct Chunk {
-    block_ids: [Block; CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE],
+    block_ids: [Block; 32 * 32 * 32],
     pub chunk_length: usize,
     pub position: Vec3,
 }
@@ -92,8 +92,8 @@ pub struct Chunk {
 impl Chunk {
     pub fn new(position: Vec3) -> Self {
         Self {
-            block_ids: [Block::Air; CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE],
-            chunk_length: CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE,
+            block_ids: [Block::Air; 32 * 32 * 32],
+            chunk_length: 32 * 32 * 32,
             position: position,
         }
     }
@@ -113,7 +113,7 @@ impl Chunk {
     }
 
     pub fn fill_chunk(&mut self, block: Block) {
-        self.block_ids = [block; CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE]
+        self.block_ids = [block; 32 * 32 * 32]
     }
 
     #[rustfmt::skip]
@@ -127,15 +127,15 @@ impl Chunk {
         for chunk_index in 0..self.chunk_length {
             if self.get_block(chunk_index) == Some(Block::Air) { continue } 
 
-            let x = (chunk_index % CHUNK_SIZE) as f32;
-            let y = (chunk_index / CHUNK_SIZE / CHUNK_SIZE % CHUNK_SIZE) as f32;
-            let z = (chunk_index / CHUNK_SIZE % CHUNK_SIZE) as f32;
+            let x = (chunk_index % 32) as f32;
+            let y = (chunk_index / 32 / 32 % 32) as f32;
+            let z = (chunk_index / 32 % 32) as f32;
 
             for vertex in CUBE_VERTICIES {
                 vertex_vec.push([
-                    vertex[0] + x + self.position.x * CHUNK_SIZE as f32,
-                    vertex[1] + y + self.position.y * CHUNK_SIZE as f32,
-                    vertex[2] + z + self.position.z * CHUNK_SIZE as f32,
+                    vertex[0] + x + self.position.x * 32 as f32,
+                    vertex[1] + y + self.position.y * 32 as f32,
+                    vertex[2] + z + self.position.z * 32 as f32,
                 ])
             }
 
@@ -153,7 +153,7 @@ impl Chunk {
             vertex_index += 1;
         }
 
-        Mesh::new(PrimitiveTopology::TriangleList)
+        Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::RENDER_WORLD)
 
         .with_inserted_attribute(
             Mesh::ATTRIBUTE_POSITION,
@@ -165,8 +165,8 @@ impl Chunk {
             normal_vec,
         )
 
-        .with_indices(Some(Indices::U32(
+        .with_inserted_indices(Indices::U32(
             index_vec,
-        )))
+        ))
     }
 }
