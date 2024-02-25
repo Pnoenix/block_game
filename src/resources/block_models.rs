@@ -1,48 +1,128 @@
 use bevy::prelude::*;
 
-use serde_json::Result;
 use serde::Deserialize;
-
 use std::fs;
 
-pub enum Direction {
-    Forward,
-    Backward,
-    Right,
-    Left,
-    Up,
-    Down,
+
+// Partial structs - these structs are used when parsing from json to rust
+#[derive(Deserialize)]
+struct PartialBlockModels {
+    block_models: Vec<PartialBlockModel>
 }
 
+#[derive(Deserialize)]
+struct PartialBlockModel {
+    name: String,
+    faces: Option<Vec<PartialFace>>,
+    texture_path: Option<String>,
+}
 
-#[derive(Resource, Deserialize)]
+#[derive(Deserialize)]
+struct PartialFace {
+    position: Vec<f32>,
+    rotation: Rotation,
+    uv_top_left: Vec<f32>,
+    uv_bottom_right: Vec<f32>,
+    size: Size
+}
+
+#[derive(Deserialize)]
+struct Rotation {
+    yaw: f32,
+    pitch: f32,
+    roll: f32
+}
+
+#[derive(Deserialize)]
+struct Size {
+    x: f32,
+    y: f32
+}
+
+// 'Full' structs -
+// These are used to interface between this resource and the rest of the codebase
+#[derive(Resource)]
 pub struct BlockModels {
     block_models: Vec<BlockModel>
 }
 
-
-#[derive(Deserialize)]
+#[allow(dead_code)]
 pub struct BlockModel {
-    faces: Vec<Face>,
-    uvs: Vec<[u32; 2]>,
-    texture_path: String,
+    name: String,
+    vertices: Option<Vec<[f32; 3]>>,
+    indices: Option<Vec<u32>>,
+    normals: Option<Vec<[f32; 3]>>,
+    uvs: Option<Vec<[f32; 4]>>,
+    texture_path: Option<String>
 }
 
 
-#[derive(Deserialize)]
-pub struct Face {
-    position: [f32; 3],
-    rotation: [f32; 3],
-    size: f32,
+impl From<PartialBlockModels> for BlockModels {
+    fn from(partial_block_models: PartialBlockModels) -> Self {
+        let mut block_models: BlockModels = BlockModels { block_models: vec![] };
+        for partial_block_model in partial_block_models.block_models {
+            let mut vertices: Vec<[f32;3]> = Vec::with_capacity(24);
+
+            match partial_block_model.faces {
+                Some(partial_faces) => {
+                    for partial_face in partial_faces {
+                        let position: Vec3 = Vec3::new(
+                            partial_face.position[0],
+                            partial_face.position[1],
+                            partial_face.position[2],
+                        );
+
+                        let yaw = Quat::from_rotation_y(partial_face.rotation.yaw);
+                        let pitch = Quat::from_rotation_x(partial_face.rotation.pitch);
+                        let roll = Quat::from_rotation_z(partial_face.rotation.roll);
+
+                        let size_x = partial_face.size.x;
+                        let size_y = partial_face.size.y;
+                        
+                        let bottom_left =  Vec3::new(-0.5 * size_x, -0.5 * size_y, 0.0);
+                        let bottom_right = Vec3::new(0.5 * size_x,  -0.5 * size_y, 0.0);
+                        let top_left =     Vec3::new(-0.5 * size_x,  0.5 * size_y, 0.0);
+                        let top_right =    Vec3::new(0.5 * size_x,   0.5 * size_y, 0.0);
+
+                        let bottom_left =  pitch.mul_vec3(yaw.mul_vec3(roll.mul_vec3(bottom_left)));
+                        let bottom_right = pitch.mul_vec3(yaw.mul_vec3(roll.mul_vec3(bottom_right)));
+                        let top_left =     pitch.mul_vec3(yaw.mul_vec3(roll.mul_vec3(top_left)));
+                        let top_right =    pitch.mul_vec3(yaw.mul_vec3(roll.mul_vec3(top_right)));
+                        
+                        vertices.push((bottom_left + position).to_array());
+                        vertices.push((bottom_right + position).to_array());
+                        vertices.push((top_right + position).to_array());
+                        vertices.push((top_left + position).to_array());
+                    }
+                },
+                None => { 
+                    
+                }
+            }
+
+            let block_model: BlockModel = BlockModel {
+                name: partial_block_model.name,
+                vertices: Some(vertices),
+                indices: None,
+                normals: None,
+                uvs: None,
+                texture_path: None
+            };
+
+            block_models.block_models.push(block_model)
+        }
+
+        return block_models
+    }
 }
 
 
 impl Default for BlockModels {
     fn default() -> Self {
-        let data = fs::read_to_string(r#"C:\Users\Ph03n\rust\block_game\src\Blocks.json"#).expect("Couldn't read block model file");
+        let data = fs::read_to_string(r#"C:\Users\Ph03n\rust\block_game\src\Blocks.json"#).expect("Couldn't read file");
+        let partial_block_models: PartialBlockModels =
+            serde_json::from_str(&data).expect("Couldn't deserialize json file");
 
-        Self {
-            block_models: serde_json::from_str(&data).expect("Couldn't parse block models file"),
-        }
+        return BlockModels::from(partial_block_models)
     }
 }

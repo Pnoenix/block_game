@@ -49,7 +49,7 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    let size = 2;
+    let size = 16;
 
     let simplex = Source::simplex(1);
     let mut count: i64 = 0;
