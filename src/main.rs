@@ -54,7 +54,7 @@ fn setup(
     let simplex = Source::simplex(1);
     let mut count: i64 = 0;
 
-    let scale = 50.0;
+    let scale = 100.0;
     
     for x in 0..size {
         for z in 0..size {

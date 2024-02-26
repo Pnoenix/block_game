@@ -52,7 +52,7 @@ pub struct BlockModel {
     vertices: Option<Vec<[f32; 3]>>,
     indices: Option<Vec<u32>>,
     normals: Option<Vec<[f32; 3]>>,
-    uvs: Option<Vec<[f32; 4]>>,
+    uvs: Option<Vec<[f32; 2]>>,
     texture_path: Option<String>
 }
 
@@ -62,9 +62,14 @@ impl From<PartialBlockModels> for BlockModels {
         let mut block_models: BlockModels = BlockModels { block_models: vec![] };
         for partial_block_model in partial_block_models.block_models {
             let mut vertices: Vec<[f32;3]> = Vec::with_capacity(24);
+            let mut indices: Vec<u32> = Vec::with_capacity(36);
+            let mut normals: Vec<[f32;3]> = Vec::with_capacity(24);
+            let mut uvs: Vec<[f32;2]> = Vec::with_capacity(24);
 
             match partial_block_model.faces {
                 Some(partial_faces) => {
+                    let mut index_counter = 0;
+
                     for partial_face in partial_faces {
                         let position: Vec3 = Vec3::new(
                             partial_face.position[0],
@@ -75,6 +80,8 @@ impl From<PartialBlockModels> for BlockModels {
                         let yaw = Quat::from_rotation_y(partial_face.rotation.yaw);
                         let pitch = Quat::from_rotation_x(partial_face.rotation.pitch);
                         let roll = Quat::from_rotation_z(partial_face.rotation.roll);
+
+                        let normal = pitch.mul_vec3(yaw.mul_vec3(Vec3::new(0.0, 0.0, -1.0)));
 
                         let size_x = partial_face.size.x;
                         let size_y = partial_face.size.y;
@@ -93,6 +100,22 @@ impl From<PartialBlockModels> for BlockModels {
                         vertices.push((bottom_right + position).to_array());
                         vertices.push((top_right + position).to_array());
                         vertices.push((top_left + position).to_array());
+
+                        indices.push(index_counter);
+                        indices.push(index_counter + 1);
+                        indices.push(index_counter + 2);
+                        indices.push(index_counter);
+                        indices.push(index_counter + 2);
+                        indices.push(index_counter + 3);
+
+                        uvs.push([partial_face.uv_top_left[0], partial_face.uv_bottom_right[1]]);
+                        uvs.push([partial_face.uv_bottom_right[0], partial_face.uv_bottom_right[1]]);
+                        uvs.push([partial_face.uv_bottom_right[0], partial_face.uv_top_left[1]]);
+                        uvs.push([partial_face.uv_top_left[0], partial_face.uv_top_left[1]]);
+
+                        for i in 0..4 { 
+                            normals.push(normal.to_array()) 
+                        }
                     }
                 },
                 None => { 
@@ -103,9 +126,9 @@ impl From<PartialBlockModels> for BlockModels {
             let block_model: BlockModel = BlockModel {
                 name: partial_block_model.name,
                 vertices: Some(vertices),
-                indices: None,
-                normals: None,
-                uvs: None,
+                indices: Some(indices),
+                normals: Some(normals),
+                uvs: Some(uvs),
                 texture_path: None
             };
 
