@@ -21,7 +21,7 @@ impl Plugin for ChunkQueue {
 
 fn load_chunks(
     mut commands: Commands,
-    chunk_load_queue: Res<ChunkLoadQueue>,
+    mut chunk_load_queue: ResMut<ChunkLoadQueue>,
     block_models: Res<BlockModels>,
 
     asset_server: Res<AssetServer>,
@@ -79,6 +79,9 @@ fn load_chunks(
             ..default()
         }
     );
+
+    chunk_load_queue.0.remove(0);
+    println!("Added mesh");
 }
 
 
@@ -100,10 +103,10 @@ fn unload_chunks(
 
 
 #[derive(Resource)]
-pub struct ChunkLoadQueue(Vec<Chunk>);
+pub struct ChunkLoadQueue(pub Vec<Chunk>);
 
 #[derive(Resource)]
-pub struct ChunkUnloadQueue(Vec<Vec3>);
+pub struct ChunkUnloadQueue(pub Vec<Vec3>);
 
 impl Default for ChunkLoadQueue {
     fn default() -> Self {

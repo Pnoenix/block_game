@@ -12,6 +12,9 @@ use plugins::{camera_plugin::*, startup_init_plugin::*, chunk_queue::*};
 // Bevy
 use bevy::prelude::*;
 
+// Own
+use data_types::chunk::*;
+
 fn main() {
     App::new()
         .add_plugins((
@@ -20,7 +23,7 @@ fn main() {
             StartupInitPlugin, 
             ChunkQueue
         ))
-        .add_systems(Startup, spawn_light)
+        .add_systems(Startup, (spawn_light, chunk_queue_test))
         .init_resource::<Controls>()
         .init_resource::<GameConfig>()
         .init_resource::<BlockModels>()
@@ -41,4 +44,11 @@ fn spawn_light(mut commands: Commands) {
     };
 
     commands.spawn(light);
+}
+
+fn chunk_queue_test(mut chunk_load_queue: ResMut<ChunkLoadQueue>) {
+    let mut chunk: Chunk = Chunk::new(Vec3::new(0.0, 0.0, 0.0));
+    chunk.fill_chunk(1);
+
+    chunk_load_queue.0.push(chunk);
 }
