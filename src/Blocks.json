@@ -7,7 +7,7 @@
         },
     
         {
-            "name": "air",
+            "name": "stone",
             "faces": [
                 {
                     "position": [0.0, 0.5, 0.5], 
@@ -94,7 +94,7 @@
                     "uv_bottom_right": [1.0, 1.0]
                 }
             ],
-            "texture_path": "Textures/Blocks/Stone"
+            "texture_path": "textures/blocks/stone.png"
         }
     ]
 }

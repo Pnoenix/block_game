@@ -43,23 +43,27 @@ struct Size {
 // These are used to interface between this resource and the rest of the codebase
 #[derive(Resource)]
 pub struct BlockModels {
-    block_models: Vec<BlockModel>
+    pub block_models: Vec<BlockModel>,
+    pub texture_atlas: Option<Handle<Image>>
 }
 
 #[allow(dead_code)]
 pub struct BlockModel {
-    name: String,
-    vertices: Option<Vec<[f32; 3]>>,
-    indices: Option<Vec<u32>>,
-    normals: Option<Vec<[f32; 3]>>,
-    uvs: Option<Vec<[f32; 2]>>,
-    texture_path: Option<String>
+    pub name: String,
+    pub vertices: Vec<[f32; 3]>,
+    pub indices: Vec<u32>,
+    pub normals: Vec<[f32; 3]>,
+    pub uvs: Vec<[f32; 2]>,
+    pub texture_path: Option<String>
 }
 
 
 impl From<PartialBlockModels> for BlockModels {
     fn from(partial_block_models: PartialBlockModels) -> Self {
-        let mut block_models: BlockModels = BlockModels { block_models: vec![] };
+        let mut block_models: BlockModels = BlockModels { 
+            block_models: vec![],
+            texture_atlas: None
+        };
         for partial_block_model in partial_block_models.block_models {
             let mut vertices: Vec<[f32;3]> = Vec::with_capacity(24);
             let mut indices: Vec<u32> = Vec::with_capacity(36);
@@ -113,9 +117,11 @@ impl From<PartialBlockModels> for BlockModels {
                         uvs.push([partial_face.uv_bottom_right[0], partial_face.uv_top_left[1]]);
                         uvs.push([partial_face.uv_top_left[0], partial_face.uv_top_left[1]]);
 
-                        for i in 0..4 { 
+                        for _ in 0..4 { 
                             normals.push(normal.to_array()) 
                         }
+
+                        index_counter += 4;
                     }
                 },
                 None => { 
@@ -125,10 +131,10 @@ impl From<PartialBlockModels> for BlockModels {
 
             let block_model: BlockModel = BlockModel {
                 name: partial_block_model.name,
-                vertices: Some(vertices),
-                indices: Some(indices),
-                normals: Some(normals),
-                uvs: Some(uvs),
+                vertices: vertices,
+                indices: indices,
+                normals: normals,
+                uvs: uvs,
                 texture_path: None
             };
 
@@ -147,5 +153,14 @@ impl Default for BlockModels {
             serde_json::from_str(&data).expect("Couldn't deserialize json file");
 
         return BlockModels::from(partial_block_models)
+    }
+}
+
+impl BlockModels {
+    pub fn get_block_model(&self, block_id: u16) -> Option<&BlockModel> {
+        if (block_id as usize) < self.block_models.len() {
+            return Some(&self.block_models[block_id as usize])
+        }
+        return None
     }
 }
