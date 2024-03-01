@@ -10,7 +10,7 @@
             "name": "stone",
             "faces": [
                 {
-                    "position": [0.0, 0.5, 0.5], 
+                    "position": [0.5, 0.5, 0.0], 
                     "rotation": {
                         "yaw": 0.0,
                         "pitch": 0.0,
@@ -24,9 +24,9 @@
                     "uv_bottom_right": [1.0, 1.0]
                 },
                 {
-                    "position": [1.0, 0.5, 0.5],
+                    "position": [0.5, 0.5, -1.0],
                     "rotation": {
-                        "yaw": 1.0,
+                        "yaw": 180.0,
                         "pitch": 0.0,
                         "roll": 0.0
                     }, 
@@ -38,9 +38,9 @@
                     "uv_bottom_right": [1.0, 1.0]
                 },
                 {
-                    "position": [0.5, 0.5, 0.0],
+                    "position": [0.0, 0.5, -0.5],
                     "rotation": {
-                        "yaw": 1.5,
+                        "yaw": 270.0,
                         "pitch": 0.0,
                         "roll": 0.0
                     }, 
@@ -52,9 +52,9 @@
                     "uv_bottom_right": [1.0, 1.0]
                 },
                 {
-                    "position": [0.5, 0.5, 1.0],
+                    "position": [1.0, 0.5, -0.5],
                     "rotation": {
-                        "yaw": 0.5,
+                        "yaw": 90.0,
                         "pitch": 0.0,
                         "roll": 0.0
                     }, 
@@ -66,10 +66,10 @@
                     "uv_bottom_right": [1.0, 1.0]
                 },
                 {
-                    "position": [0.5, 0, 0.5],
+                    "position": [0.5, 0, -0.5],
                     "rotation": {
                         "yaw": 0.0,
-                        "pitch": 1.5,
+                        "pitch": 90.0,
                         "roll": 0.0
                     }, 
                     "size": {
@@ -80,10 +80,101 @@
                     "uv_bottom_right": [1.0, 1.0]
                 },
                 {
-                    "position": [0.5, 1.0, 0.5],
+                    "position": [0.5, 1.0, -0.5],
                     "rotation": {
                         "yaw": 0.0,
-                        "pitch": 0.5,
+                        "pitch": 270.0,
+                        "roll": 0.0
+                    }, 
+                    "size": {
+                        "x": 1.0,
+                        "y": 1.0
+                    },
+                    "uv_top_left": [0.0, 0.0],
+                    "uv_bottom_right": [1.0, 1.0]
+                }
+            ],
+            "texture_path": "textures/blocks/stone.png"
+        },
+
+        {
+            "name": "slab",
+            "faces": [
+                {
+                    "position": [0.5, 0.25, 0.0], 
+                    "rotation": {
+                        "yaw": 0.0,
+                        "pitch": 0.0,
+                        "roll": 0.0
+                    }, 
+                    "size": {
+                        "x": 1.0,
+                        "y": 0.5
+                    },
+                    "uv_top_left": [0.0, 0.0],
+                    "uv_bottom_right": [1.0, 1.0]
+                },
+                {
+                    "position": [0.5, 0.25, -1.0],
+                    "rotation": {
+                        "yaw": 180.0,
+                        "pitch": 0.0,
+                        "roll": 0.0
+                    }, 
+                    "size": {
+                        "x": 1.0,
+                        "y": 0.5
+                    },
+                    "uv_top_left": [0.0, 0.0],
+                    "uv_bottom_right": [1.0, 1.0]
+                },
+                {
+                    "position": [0.0, 0.25, -0.5],
+                    "rotation": {
+                        "yaw": 270.0,
+                        "pitch": 0.0,
+                        "roll": 0.0
+                    }, 
+                    "size": {
+                        "x": 1.0,
+                        "y": 0.5
+                    },
+                    "uv_top_left": [0.0, 0.0],
+                    "uv_bottom_right": [1.0, 1.0]
+                },
+                {
+                    "position": [1.0, 0.25, -0.5],
+                    "rotation": {
+                        "yaw": 90.0,
+                        "pitch": 0.0,
+                        "roll": 0.0
+                    }, 
+                    "size": {
+                        "x": 1.0,
+                        "y": 0.5
+                    },
+                    "uv_top_left": [0.0, 0.0],
+                    "uv_bottom_right": [1.0, 1.0]
+                },
+                {
+                    "position": [0.5, 0, -0.5],
+                    "rotation": {
+                        "yaw": 0.0,
+                        "pitch": 90.0,
+                        "roll": 0.0
+                    }, 
+                    "size": {
+                        "x": 1.0,
+                        "y": 1.0
+                    },
+                    "uv_top_left": [0.0, 0.0],
+                    "uv_bottom_right": [1.0, 1.0]
+                },
+                {
+                    "position": [0.5, 0.5, -0.5],
+                    "rotation": {
+                        "yaw": 0.0,
+                        "pitch": 270.0,
                         "roll": 0.0
                     }, 
                     "size": {

@@ -16,12 +16,12 @@ impl Chunk {
         }
     }
 
-    pub fn position_from_index(index: usize) -> [f32;3] {
-        return [
+    pub fn position_from_index(&self, index: usize) -> Vec3 {
+        return Vec3::new(
             (index % 32) as f32, 
             ((index / 32) % 32) as f32, 
             ((index / 1024) % 32) as f32
-            ]
+        )
     }
 
     pub fn fill_chunk(&mut self, block_id: u16) {

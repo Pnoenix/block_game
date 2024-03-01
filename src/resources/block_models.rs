@@ -81,11 +81,11 @@ impl From<PartialBlockModels> for BlockModels {
                             partial_face.position[2],
                         );
 
-                        let yaw = Quat::from_rotation_y(partial_face.rotation.yaw);
-                        let pitch = Quat::from_rotation_x(partial_face.rotation.pitch);
-                        let roll = Quat::from_rotation_z(partial_face.rotation.roll);
+                        let yaw = Quat::from_rotation_y(f32::to_radians(partial_face.rotation.yaw));
+                        let pitch = Quat::from_rotation_x(f32::to_radians(partial_face.rotation.pitch));
+                        let roll = Quat::from_rotation_z(f32::to_radians(partial_face.rotation.roll));
 
-                        let normal = pitch.mul_vec3(yaw.mul_vec3(Vec3::new(0.0, 0.0, -1.0)));
+                        let normal = pitch.mul_vec3(yaw.mul_vec3(Vec3::new(0.0, 0.0, 1.0)));
 
                         let size_x = partial_face.size.x;
                         let size_y = partial_face.size.y;
@@ -137,6 +137,14 @@ impl From<PartialBlockModels> for BlockModels {
                 uvs: uvs,
                 texture_path: None
             };
+            println!("Vertices: ");
+            for vertex in &block_model.vertices {
+                println!("x: {}, y: {}, z: {}", vertex[0], vertex[1], vertex[2]);
+            }
+            println!("Indices: ");
+            for index in &block_model.indices {
+                println!("{index}");
+            }
 
             block_models.block_models.push(block_model)
         }

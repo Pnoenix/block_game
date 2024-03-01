@@ -48,7 +48,7 @@ fn spawn_light(mut commands: Commands) {
 
 fn chunk_queue_test(mut chunk_load_queue: ResMut<ChunkLoadQueue>) {
     let mut chunk: Chunk = Chunk::new(Vec3::new(0.0, 0.0, 0.0));
-    chunk.fill_chunk(1);
+    chunk.fill_chunk(2);
 
     chunk_load_queue.0.push(chunk);
 }

@@ -35,19 +35,30 @@ fn load_chunks(
     let mut normals: Vec<[f32; 3]> = Vec::with_capacity(24);
     let mut uvs: Vec<[f32; 2]> = Vec::with_capacity(24);
 
-    let chunk = chunk_load_queue.0.first().expect("This shouldn't be possible...?");
+    let chunk: &Chunk = chunk_load_queue.0.first().expect("This shouldn't be possible...?");
 
     let mut index_offset: u32 = 0;
 
-    for block_id in chunk.block_ids {
+    for index in 0..chunk.block_ids.len() {
+        let block_id = chunk.block_ids[index];
+        let position = chunk.position_from_index(index);
+
         let block_model = block_models.get_block_model(block_id).expect("Couldn't find block");
 
-        vertices.append(&mut block_model.vertices.clone());
+        vertices.append(&mut block_model.vertices
+            .clone()
+            .iter()
+            .map(|x| (Vec3::from_array(*x) + position).to_array())
+            .collect()
+        );
         normals.append(&mut block_model.normals.clone());
         uvs.append(&mut block_model.uvs.clone());
         indices.append(&mut block_model.indices.clone().iter().map(|x|x + index_offset).collect());
 
-        index_offset += block_model.indices.len() as u32;
+        match block_model.indices.last() {
+            Some(value) => index_offset += value + 1,
+            None => {}
+        }
     }
 
     let block_mesh = meshes.add(

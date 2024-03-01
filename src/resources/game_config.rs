@@ -16,8 +16,8 @@ pub struct GameConfig {
 impl Default for GameConfig {
     fn default() -> Self {
         Self {
-            player_speed_xz: 2.0,
-            player_speed_y: 2.0,
+            player_speed_xz: 0.25,
+            player_speed_y: 0.25,
 
             hidden_sensitivity: 0.001,
         }
